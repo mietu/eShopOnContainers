@@ -2,13 +2,21 @@
 
 using Microsoft.eShopOnContainers.WebMVC.ViewModels;
 
+/// <summary>
+/// 订单服务类，负责处理与订单相关的操作，包括获取、取消和发货订单，
+/// 以及在用户信息和订单之间进行数据映射。
+/// </summary>
 public class OrderingService : IOrderingService
 {
     private HttpClient _httpClient;
     private readonly string _remoteServiceBaseUrl;
     private readonly IOptions<AppSettings> _settings;
 
-
+    /// <summary>
+    /// 构造函数，初始化订单服务及其依赖项
+    /// </summary>
+    /// <param name="httpClient">用于发送HTTP请求的客户端</param>
+    /// <param name="settings">应用程序配置</param>
     public OrderingService(HttpClient httpClient, IOptions<AppSettings> settings)
     {
         _httpClient = httpClient;
@@ -17,6 +25,12 @@ public class OrderingService : IOrderingService
         _remoteServiceBaseUrl = $"{settings.Value.PurchaseUrl}/o/api/v1/orders";
     }
 
+    /// <summary>
+    /// 获取指定ID的订单详情
+    /// </summary>
+    /// <param name="user">当前用户</param>
+    /// <param name="id">订单ID</param>
+    /// <returns>订单详情对象</returns>
     async public Task<Order> GetOrder(ApplicationUser user, string id)
     {
         var uri = API.Order.GetOrder(_remoteServiceBaseUrl, id);
@@ -31,6 +45,11 @@ public class OrderingService : IOrderingService
         return response;
     }
 
+    /// <summary>
+    /// 获取当前用户的所有订单
+    /// </summary>
+    /// <param name="user">当前用户</param>
+    /// <returns>用户的订单列表</returns>
     async public Task<List<Order>> GetMyOrders(ApplicationUser user)
     {
         var uri = API.Order.GetAllMyOrders(_remoteServiceBaseUrl);
@@ -45,8 +64,12 @@ public class OrderingService : IOrderingService
         return response;
     }
 
-
-
+    /// <summary>
+    /// 取消指定ID的订单
+    /// </summary>
+    /// <param name="orderId">需要取消的订单ID</param>
+    /// <returns>表示异步操作的任务</returns>
+    /// <exception cref="Exception">当取消订单操作失败时抛出</exception>
     async public Task CancelOrder(string orderId)
     {
         var order = new OrderDTO()
@@ -67,6 +90,12 @@ public class OrderingService : IOrderingService
         response.EnsureSuccessStatusCode();
     }
 
+    /// <summary>
+    /// 发货指定ID的订单
+    /// </summary>
+    /// <param name="orderId">需要发货的订单ID</param>
+    /// <returns>表示异步操作的任务</returns>
+    /// <exception cref="Exception">当发货操作失败时抛出</exception>
     async public Task ShipOrder(string orderId)
     {
         var order = new OrderDTO()
@@ -87,6 +116,11 @@ public class OrderingService : IOrderingService
         response.EnsureSuccessStatusCode();
     }
 
+    /// <summary>
+    /// 将原始订单的用户信息覆盖到目标订单中
+    /// </summary>
+    /// <param name="original">包含源用户信息的订单</param>
+    /// <param name="destination">需要更新用户信息的目标订单</param>
     public void OverrideUserInfoIntoOrder(Order original, Order destination)
     {
         destination.City = original.City;
@@ -101,6 +135,12 @@ public class OrderingService : IOrderingService
         destination.CardSecurityNumber = original.CardSecurityNumber;
     }
 
+    /// <summary>
+    /// 将用户个人信息映射到订单对象中
+    /// </summary>
+    /// <param name="user">包含用户信息的对象</param>
+    /// <param name="order">需要填充用户信息的订单</param>
+    /// <returns>更新后的订单对象</returns>
     public Order MapUserInfoIntoOrder(ApplicationUser user, Order order)
     {
         order.City = user.City;
@@ -117,6 +157,11 @@ public class OrderingService : IOrderingService
         return order;
     }
 
+    /// <summary>
+    /// 将订单信息映射到购物篮DTO对象中
+    /// </summary>
+    /// <param name="order">订单信息</param>
+    /// <returns>转换后的购物篮DTO对象</returns>
     public BasketDTO MapOrderToBasket(Order order)
     {
         order.CardExpirationApiFormat();

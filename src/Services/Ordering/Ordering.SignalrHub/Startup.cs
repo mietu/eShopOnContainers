@@ -1,25 +1,25 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-
 namespace Microsoft.eShopOnContainers.Services.Ordering.SignalrHub;
 
 public class Startup
 {
     public Startup(IConfiguration configuration)
     {
+        // 初始化配置
         Configuration = configuration;
     }
 
     public IConfiguration Configuration { get; }
 
-    // This method gets called by the runtime. Use this method to add services to the container.
-    // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+    // 该方法由运行时调用。使用此方法将服务添加到容器中。
+    // 有关如何配置应用程序的更多信息，请访问 https://go.microsoft.com/fwlink/?LinkID=398940
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
+        // 添加自定义健康检查服务
         services
             .AddCustomHealthCheck(Configuration)
             .AddCors(options =>
             {
+                // 配置CORS策略，允许任何方法、任何头部、任何来源，并允许凭证
                 options.AddPolicy("CorsPolicy",
                     builder => builder
                     .AllowAnyMethod()
@@ -28,6 +28,7 @@ public class Startup
                     .AllowCredentials());
             });
 
+        // 根据配置决定是否使用Redis作为SignalR的后端存储
         if (Configuration.GetValue<string>("IsClusterEnv") == bool.TrueString)
         {
             services
@@ -39,14 +40,13 @@ public class Startup
             services.AddSignalR();
         }
 
+        // 根据配置决定使用Azure Service Bus还是RabbitMQ
         if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
         {
             services.AddSingleton<IServiceBusPersisterConnection>(sp =>
             {
                 var serviceBusConnectionString = Configuration["EventBusConnection"];
-
                 var subscriptionClientName = Configuration["SubscriptionClientName"];
-
                 return new DefaultServiceBusPersisterConnection(serviceBusConnectionString);
             });
         }
@@ -55,8 +55,6 @@ public class Startup
             services.AddSingleton<IRabbitMQPersistentConnection>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<DefaultRabbitMQPersistentConnection>>();
-
-
                 var factory = new ConnectionFactory()
                 {
                     HostName = Configuration["EventBusConnection"],
@@ -83,28 +81,25 @@ public class Startup
             });
         }
 
+        // 配置认证服务
         ConfigureAuthService(services);
 
+        // 注册事件总线
         RegisterEventBus(services);
 
         services.AddOptions();
 
-        //configure autofac
+        // 配置Autofac作为依赖注入容器
         var container = new ContainerBuilder();
-        container.RegisterModule(new ApplicationModule());
+        container.RegisterModule(module: new ApplicationModule());
         container.Populate(services);
 
         return new AutofacServiceProvider(container.Build());
     }
 
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    // 该方法由运行时调用。使用此方法配置HTTP请求管道。
     public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
     {
-        //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-        //loggerFactory.AddDebug();
-        //loggerFactory.AddAzureWebAppDiagnostics();
-        //loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Trace);
-
         var pathBase = Configuration["PATH_BASE"];
 
         if (!string.IsNullOrEmpty(pathBase))
@@ -135,6 +130,7 @@ public class Startup
         ConfigureEventBus(app);
     }
 
+    // 配置事件总线
     private void ConfigureEventBus(IApplicationBuilder app)
     {
         var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
@@ -147,9 +143,10 @@ public class Startup
         eventBus.Subscribe<OrderStatusChangedToSubmittedIntegrationEvent, OrderStatusChangedToSubmittedIntegrationEventHandler>();
     }
 
+    // 配置认证服务
     private void ConfigureAuthService(IServiceCollection services)
     {
-        // prevent from mapping "sub" claim to nameidentifier.
+        // 防止将 "sub" 声明映射到 nameidentifier
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
 
         var identityUrl = Configuration.GetValue<string>("IdentityUrl");
@@ -165,7 +162,6 @@ public class Startup
                 OnMessageReceived = context =>
                 {
                     var accessToken = context.Request.Query["access_token"];
-
                     var path = context.HttpContext.Request.Path;
                     if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/hub/notificationhub")))
                     {
@@ -185,6 +181,7 @@ public class Startup
         });
     }
 
+    // 注册事件总线
     private void RegisterEventBus(IServiceCollection services)
     {
         if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
@@ -227,6 +224,7 @@ public class Startup
 
 public static class CustomExtensionMethods
 {
+    // 添加自定义健康检查服务
     public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services, IConfiguration configuration)
     {
         var hcBuilder = services.AddHealthChecks();

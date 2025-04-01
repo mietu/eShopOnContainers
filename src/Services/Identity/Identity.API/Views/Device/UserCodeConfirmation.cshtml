@@ -8,13 +8,13 @@
         }
         <h1>
             @Model.ClientName
-            <small class="text-muted">is requesting your permission</small>
+            <small class="text-muted">正在请求您的许可</small>
         </h1>
         @if (Model.ConfirmUserCode)
         {
-            <p>Please confirm that the authorization request quotes the code: <strong>@Model.UserCode</strong>.</p>
+            <p>请确认授权请求引用代码：<strong>@Model.UserCode</strong>.</p>
         }
-        <p>Uncheck the permissions you do not wish to grant.</p>
+        <p>取消选中您不希望授予的权限。</p>
     </div>
 
     <div class="row">
@@ -33,7 +33,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <span class="glyphicon glyphicon-user"></span>
-                                Personal Information
+                                个人信息
                             </div>
                             <ul class="list-group list-group-flush">
                                 @foreach (var scope in Model.IdentityScopes)
@@ -51,7 +51,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <span class="glyphicon glyphicon-tasks"></span>
-                                Application Access
+                                应用访问
                             </div>
                             <ul class="list-group list-group-flush">
                                 @foreach (var scope in Model.ApiScopes)
@@ -67,7 +67,7 @@
                     <div class="card">
                         <div class="card-header">
                             <span class="glyphicon glyphicon-tasks"></span>
-                            Description
+                            描述信息
                         </div>
                         <div class="card-body">
                             <input class="form-control" placeholder="Description or name of device" asp-for="Description" autofocus>
@@ -81,7 +81,7 @@
                         <div class="form-check">
                             <input class="form-check-input" asp-for="RememberConsent">
                             <label class="form-check-label" asp-for="RememberConsent">
-                                <strong>Remember My Decision</strong>
+                                <strong>记住我的决定</strong>
                             </label>
                         </div>
                     </div>
@@ -91,8 +91,8 @@
 
         <div class="row">
             <div class="col-sm-4">
-                <button name="button" value="yes" class="btn btn-primary" autofocus>Yes, Allow</button>
-                <button name="button" value="no" class="btn btn-secondary">No, Do Not Allow</button>
+                <button name="button" value="yes" class="btn btn-primary" autofocus>是的，允许</button>
+                <button name="button" value="no" class="btn btn-secondary">不，不允许</button>
             </div>
             <div class="col-sm-4 col-lg-auto">
                 @if (Model.ClientUrl != null)

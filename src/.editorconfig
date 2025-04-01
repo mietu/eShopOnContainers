@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# IDE0061: 使用本地函数的块主体
+dotnet_diagnostic.IDE0061.severity = silent

@@ -1,10 +1,22 @@
 ﻿namespace Microsoft.eShopOnContainers.Mobile.Shopping.HttpAggregator.Models;
 
+/// <summary>
+/// 表示更新购物篮中商品的请求数据。
+/// </summary>
 public class UpdateBasketRequestItemData
 {
-    public string Id { get; set; }          // Basket id
+    /// <summary>
+    /// 获取或设置购物篮的标识符。
+    /// </summary>
+    public string Id { get; set; }          // 购物篮ID
 
-    public int ProductId { get; set; }      // Catalog item id
+    /// <summary>
+    /// 获取或设置要更新的商品的标识符（目录项ID）。
+    /// </summary>
+    public int ProductId { get; set; }      // 目录项ID
 
-    public int Quantity { get; set; }       // Quantity
+    /// <summary>
+    /// 获取或设置商品的数量。
+    /// </summary>
+    public int Quantity { get; set; }       // 商品数量
 }

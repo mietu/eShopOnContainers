@@ -1,5 +1,8 @@
 ﻿namespace Webhooks.API.IntegrationEvents;
 
+/// <summary>
+/// 事件源的声明
+/// </summary>
 public record ProductPriceChangedIntegrationEvent : IntegrationEvent
 {
     public int ProductId { get; private init; }

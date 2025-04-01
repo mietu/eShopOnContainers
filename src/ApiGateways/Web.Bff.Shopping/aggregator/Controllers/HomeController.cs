@@ -6,6 +6,6 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        return new RedirectResult("~/swagger");
+        return new RedirectResult("~/swagger/index.html");
     }
 }

@@ -1,5 +1,6 @@
 ﻿await BuildWebHost(args).RunAsync();
 
+#pragma warning disable CS0618 // 类型或成员已过时
 IWebHost BuildWebHost(string[] args) =>
     WebHost.CreateDefaultBuilder(args)
      .UseStartup<Startup>()
@@ -25,3 +26,4 @@ IWebHost BuildWebHost(string[] args) =>
                 .WriteTo.Console();
         })
         .Build();
+#pragma warning restore CS0618 // 类型或成员已过时

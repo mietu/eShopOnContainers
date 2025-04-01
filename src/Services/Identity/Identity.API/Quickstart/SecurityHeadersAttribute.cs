@@ -4,44 +4,50 @@
 
 namespace IdentityServerHost.Quickstart.UI;
 
+// SecurityHeadersAttribute 用于为返回的 ViewResult 添加安全相关的 HTTP 响应头
 public class SecurityHeadersAttribute : ActionFilterAttribute
 {
     public override void OnResultExecuting(ResultExecutingContext context)
     {
         var result = context.Result;
+        // 判断当前返回结果是否为 ViewResult 类型
         if (result is ViewResult)
         {
-            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+            // 添加 X-Content-Type-Options 响应头，防止 MIME 类型混淆攻击
+            // 参考：https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
             if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Type-Options"))
             {
                 context.HttpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
             }
 
-            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+            // 添加 X-Frame-Options 响应头，防止 Clickjacking 攻击
+            // 参考：https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
             if (!context.HttpContext.Response.Headers.ContainsKey("X-Frame-Options"))
             {
                 context.HttpContext.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
             }
 
-            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+            // 定义 Content-Security-Policy 策略，限制允许加载的资源
+            // 参考：https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
             var csp = "default-src 'self'; object-src 'none'; frame-ancestors 'none'; sandbox allow-forms allow-same-origin allow-scripts; base-uri 'self';";
-            // also consider adding upgrade-insecure-requests once you have HTTPS in place for production
+            // 可进一步考虑在生产环境开启 HTTPS 后加入 upgrade-insecure-requests 选项
             //csp += "upgrade-insecure-requests;";
-            // also an example if you need client images to be displayed from twitter
+            // 也可添加允许从指定第三方加载图片资源的规则
             // csp += "img-src 'self' https://pbs.twimg.com;";
 
-            // once for standards compliant browsers
+            // 为标准兼容浏览器添加 Content-Security-Policy 响应头
             if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy"))
             {
                 context.HttpContext.Response.Headers.Add("Content-Security-Policy", csp);
             }
-            // and once again for IE
+            // 为 Internet Explorer 添加 X-Content-Security-Policy 响应头
             if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy"))
             {
                 context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", csp);
             }
 
-            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
+            // 添加 Referrer-Policy 响应头，设置不发送 referrer 信息
+            // 参考：https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
             var referrer_policy = "no-referrer";
             if (!context.HttpContext.Response.Headers.ContainsKey("Referrer-Policy"))
             {

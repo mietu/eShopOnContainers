@@ -5,7 +5,11 @@
 
 namespace IdentityServerHost.Quickstart.UI;
 
+// RedirectViewModel 用于存储重定向的 URL
 public class RedirectViewModel
 {
+    /// <summary>
+    /// 获取或设置重定向的 URL。
+    /// </summary>
     public string RedirectUrl { get; set; }
 }
